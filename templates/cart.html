@@ -1,0 +1,358 @@
+{% extends "base.html" %}
+
+{% block title %}Foodie - سلة التسوق{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="bg-primary text-white py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="fas fa-shopping-cart me-3"></i>
+                    سلة التسوق
+                </h1>
+                <p class="lead">
+                    راجع طلبك قبل المتابعة للدفع
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Cart Content -->
+<section class="py-5">
+    <div class="container">
+        {% if cart %}
+            <div class="row">
+                <!-- Cart Items -->
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-list me-2"></i>
+                                عناصر الطلب ({{ cart|length }} عنصر)
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            {% for item in cart %}
+                            <div class="cart-item border-bottom p-4">
+                                <div class="row align-items-center">
+                                    <div class="col-md-2 text-center">
+                                        <div class="item-image">
+                                            <i class="fas fa-utensils fa-3x text-primary"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h6 class="fw-bold text-primary mb-1">{{ item.name }}</h6>
+                                        <p class="text-muted small mb-0">وجبة شهية ولذيذة</p>
+                                    </div>
+                                    <div class="col-md-2 text-center">
+                                        <span class="price fw-bold">{{ "%.2f"|format(item.price) }} درهم</span>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <form method="POST" action="{{ url_for('update_cart') }}" class="d-inline">
+                                            <input type="hidden" name="item_id" value="{{ item.id }}">
+                                            <div class="input-group input-group-sm">
+                                                <button type="button" class="btn btn-outline-secondary" onclick="decreaseQuantity({{ item.id }})">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                                <input type="number" name="quantity" value="{{ item.quantity }}" 
+                                                       min="0" max="10" class="form-control text-center" 
+                                                       id="quantity-{{ item.id }}" onchange="this.form.submit()">
+                                                <button type="button" class="btn btn-outline-secondary" onclick="increaseQuantity({{ item.id }})">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="col-md-2 text-center">
+                                        <div class="fw-bold text-success mb-2">
+                                            {{ "%.2f"|format(item.price * item.quantity) }} درهم
+                                        </div>
+                                        <form method="POST" action="{{ url_for('update_cart') }}" class="d-inline">
+                                            <input type="hidden" name="item_id" value="{{ item.id }}">
+                                            <input type="hidden" name="quantity" value="0">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm" 
+                                                    onclick="return confirm('هل تريد حذف هذا العنصر؟')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Continue Shopping -->
+                    <div class="mt-4">
+                        <a href="{{ url_for('menu') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-right me-2"></i>
+                            متابعة التسوق
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Order Summary -->
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm sticky-top" style="top: 20px;">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-calculator me-2"></i>
+                                ملخص الطلب
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="order-summary">
+                                {% for item in cart %}
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">{{ item.name }} × {{ item.quantity }}</span>
+                                    <span>{{ "%.2f"|format(item.price * item.quantity) }} درهم</span>
+                                </div>
+                                {% endfor %}
+                                
+                                <hr>
+                                
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>المجموع الفرعي:</span>
+                                    <span>{{ "%.2f"|format(total) }} درهم</span>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>رسوم التوصيل:</span>
+                                    <span class="text-success">
+                                        {% if total >= 100 %}
+                                            مجاني
+                                        {% else %}
+                                            15.00 درهم
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                
+                                {% if total < 100 %}
+                                <div class="alert alert-info small mb-3">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    أضف {{ "%.2f"|format(100 - total) }} درهم للحصول على توصيل مجاني
+                                </div>
+                                {% endif %}
+                                
+                                <hr class="fw-bold">
+                                
+                                <div class="d-flex justify-content-between mb-3">
+                                    <span class="fw-bold fs-5">المجموع الكلي:</span>
+                                    <span class="fw-bold fs-5 text-primary">
+                                        {{ "%.2f"|format(total + (15 if total < 100 else 0)) }} درهم
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <a href="{{ url_for('checkout') }}" class="btn btn-primary w-100 btn-lg">
+                                <i class="fas fa-credit-card me-2"></i>
+                                متابعة للدفع
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Info -->
+                    <div class="card border-0 shadow-sm mt-4">
+                        <div class="card-body text-center">
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-shield-alt me-2"></i>
+                                معلومات الدفع
+                            </h6>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-money-bill-wave text-success me-2"></i>
+                                        <span class="small">الدفع عند الاستلام فقط</span>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-truck text-primary me-2"></i>
+                                        <span class="small">توصيل خلال 30-45 دقيقة</span>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-phone text-warning me-2"></i>
+                                        <span class="small">تأكيد الطلب عبر الهاتف</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <!-- Empty Cart -->
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-shopping-cart fa-5x text-muted"></i>
+                </div>
+                <h3 class="text-muted mb-3">سلة التسوق فارغة</h3>
+                <p class="text-muted mb-4">
+                    لم تقم بإضافة أي وجبات إلى سلة التسوق بعد.
+                    <br>
+                    تصفح قائمة الطعام واختر وجباتك المفضلة.
+                </p>
+                <a href="{{ url_for('menu') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-utensils me-2"></i>
+                    تصفح القائمة
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Recommended Items -->
+{% if cart %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h3 class="text-primary">
+                <i class="fas fa-star me-2"></i>
+                قد يعجبك أيضاً
+            </h3>
+            <p class="text-muted">وجبات مميزة لإكمال طلبك</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-mug-hot fa-3x text-warning mb-3"></i>
+                        <h6 class="fw-bold">أتاي مغربي</h6>
+                        <p class="text-muted small">شاي مغربي أصيل بالنعناع</p>
+                        <span class="price">12.00 درهم</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-bread-slice fa-3x text-warning mb-3"></i>
+                        <h6 class="fw-bold">خبز مغربي</h6>
+                        <p class="text-muted small">خبز طازج محضر يومياً</p>
+                        <span class="price">8.00 درهم</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-lemon fa-3x text-warning mb-3"></i>
+                        <h6 class="fw-bold">عصير طبيعي</h6>
+                        <p class="text-muted small">عصائر طازجة ومنعشة</p>
+                        <span class="price">18.00 درهم</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<style>
+.cart-item {
+    transition: all 0.3s ease;
+}
+
+.cart-item:hover {
+    background-color: #f8f9fa;
+}
+
+.item-image {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary-red), #e74c3c);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin: 0 auto;
+}
+
+.price {
+    color: var(--primary-red);
+    font-weight: 600;
+}
+
+.input-group-sm .form-control {
+    font-size: 0.9rem;
+}
+
+.sticky-top {
+    position: sticky;
+    top: 20px;
+    z-index: 1020;
+}
+
+@media (max-width: 768px) {
+    .sticky-top {
+        position: static;
+    }
+    
+    .cart-item .row {
+        text-align: center;
+    }
+    
+    .cart-item .col-md-2,
+    .cart-item .col-md-4 {
+        margin-bottom: 10px;
+    }
+}
+</style>
+
+<script>
+function increaseQuantity(itemId) {
+    const input = document.getElementById('quantity-' + itemId);
+    const currentValue = parseInt(input.value);
+    if (currentValue < 10) {
+        input.value = currentValue + 1;
+        input.form.submit();
+    }
+}
+
+function decreaseQuantity(itemId) {
+    const input = document.getElementById('quantity-' + itemId);
+    const currentValue = parseInt(input.value);
+    if (currentValue > 1) {
+        input.value = currentValue - 1;
+        input.form.submit();
+    } else if (currentValue === 1) {
+        if (confirm('هل تريد حذف هذا العنصر من السلة؟')) {
+            input.value = 0;
+            input.form.submit();
+        }
+    }
+}
+
+// Auto-submit form when quantity changes
+document.querySelectorAll('input[name="quantity"]').forEach(input => {
+    input.addEventListener('change', function() {
+        if (this.value < 0) this.value = 0;
+        if (this.value > 10) this.value = 10;
+    });
+});
+
+// Add smooth animations
+document.addEventListener('DOMContentLoaded', function() {
+    const cartItems = document.querySelectorAll('.cart-item');
+    cartItems.forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            item.style.transition = 'all 0.5s ease';
+            item.style.opacity = '1';
+            item.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

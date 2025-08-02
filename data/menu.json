@@ -1,0 +1,202 @@
+[
+  {
+    "id": 2,
+    "name": "كسكس بالخضار",
+    "name_fr": "Couscous aux Légumes",
+    "description": "كسكس مغربي تقليدي مع خضار طازجة ولحم الضأن",
+    "description_fr": "Couscous marocain traditionnel aux légumes frais et agneau",
+    "price": 75.0,
+    "category": "أطباق رئيسية",
+    "category_fr": "Plats Principaux",
+    "image": "20250802_203357_png-clipart-roast-chicken-chicken-food.png",
+    "available": true,
+    "preparation_time": 45,
+    "ingredients": [
+      "كسكس",
+      "جزر",
+      "كوسا",
+      "لحم ضأن",
+      "حمص",
+      "توابل"
+    ],
+    "ingredients_fr": [
+      "Couscous",
+      "Carotte",
+      "Courgette",
+      "Agneau",
+      "Pois chiches",
+      "Épices"
+    ],
+    "created_at": "2024-01-01T10:00:00"
+  },
+  {
+    "id": 3,
+    "name": "بسطيلة بالدجاج",
+    "name_fr": "Pastilla au Poulet",
+    "description": "بسطيلة مغربية تقليدية محشوة بالدجاج واللوز والبيض",
+    "description_fr": "Pastilla marocaine traditionnelle farcie au poulet, amandes et œufs",
+    "price": 95.0,
+    "category": "مقبلات",
+    "category_fr": "Entrées",
+    "image": "20250802_204210_png-clipart-roast-chicken-chicken-food.png",
+    "available": true,
+    "preparation_time": 25,
+    "ingredients": [
+      "عجينة ورقة",
+      "دجاج",
+      "لوز",
+      "بيض",
+      "بقدونس",
+      "قرفة"
+    ],
+    "ingredients_fr": [
+      "Pâte filo",
+      "Poulet",
+      "Amandes",
+      "Œufs",
+      "Persil",
+      "Cannelle"
+    ],
+    "created_at": "2024-01-01T10:00:00"
+  },
+  {
+    "id": 4,
+    "name": "حريرة مغربية",
+    "name_fr": "Harira Marocaine",
+    "description": "شوربة مغربية تقليدية بالطماطم والعدس والحمص",
+    "description_fr": "Soupe marocaine traditionnelle aux tomates, lentilles et pois chiches",
+    "price": 35.0,
+    "category": "شوربات",
+    "category_fr": "Soupes",
+    "image": null,
+    "available": true,
+    "preparation_time": 15,
+    "ingredients": [
+      "طماطم",
+      "عدس",
+      "حمص",
+      "أرز",
+      "كرفس",
+      "كزبرة"
+    ],
+    "ingredients_fr": [
+      "Tomates",
+      "Lentilles",
+      "Pois chiches",
+      "Riz",
+      "Céleri",
+      "Coriandre"
+    ],
+    "created_at": "2024-01-01T10:00:00"
+  },
+  {
+    "id": 5,
+    "name": "سلطة مغربية",
+    "name_fr": "Salade Marocaine",
+    "description": "سلطة طازجة بالطماطم والخيار والفلفل مع صلصة الليمون",
+    "description_fr": "Salade fraîche aux tomates, concombres et poivrons avec vinaigrette au citron",
+    "price": 25.0,
+    "category": "سلطات",
+    "category_fr": "Salades",
+    "image": null,
+    "available": true,
+    "preparation_time": 10,
+    "ingredients": [
+      "طماطم",
+      "خيار",
+      "فلفل",
+      "بصل",
+      "ليمون",
+      "زيت زيتون"
+    ],
+    "ingredients_fr": [
+      "Tomates",
+      "Concombre",
+      "Poivron",
+      "Oignon",
+      "Citron",
+      "Huile d'olive"
+    ],
+    "created_at": "2024-01-01T10:00:00"
+  },
+  {
+    "id": 6,
+    "name": "شاي مغربي بالنعناع",
+    "name_fr": "Thé Marocain à la Menthe",
+    "description": "شاي أخضر مغربي تقليدي بالنعناع الطازج والسكر",
+    "description_fr": "Thé vert marocain traditionnel à la menthe fraîche et sucre",
+    "price": 15.0,
+    "category": "مشروبات",
+    "category_fr": "Boissons",
+    "image": null,
+    "available": true,
+    "preparation_time": 5,
+    "ingredients": [
+      "شاي أخضر",
+      "نعناع طازج",
+      "سكر"
+    ],
+    "ingredients_fr": [
+      "Thé vert",
+      "Menthe fraîche",
+      "Sucre"
+    ],
+    "created_at": "2024-01-01T10:00:00"
+  },
+  {
+    "id": 7,
+    "name": "حلوى الشباكية",
+    "name_fr": "Chebakia",
+    "description": "حلوى مغربية تقليدية مقلية ومغطاة بالعسل والسمسم",
+    "description_fr": "Pâtisserie marocaine traditionnelle frite et enrobée de miel et sésame",
+    "price": 45.0,
+    "category": "حلويات",
+    "category_fr": "Desserts",
+    "image": null,
+    "available": true,
+    "preparation_time": 20,
+    "ingredients": [
+      "دقيق",
+      "عسل",
+      "سمسم",
+      "زيت",
+      "ماء الزهر"
+    ],
+    "ingredients_fr": [
+      "Farine",
+      "Miel",
+      "Sésame",
+      "Huile",
+      "Eau de fleur d'oranger"
+    ],
+    "created_at": "2024-01-01T10:00:00"
+  },
+  {
+    "id": 8,
+    "name": "مهلبية بماء الورد",
+    "name_fr": "Muhallabia à l'Eau de Rose",
+    "description": "حلوى كريمية بالحليب وماء الورد مزينة بالفستق",
+    "description_fr": "Dessert crémeux au lait et eau de rose garni de pistaches",
+    "price": 35.0,
+    "category": "حلويات",
+    "category_fr": "Desserts",
+    "image": null,
+    "available": true,
+    "preparation_time": 15,
+    "ingredients": [
+      "حليب",
+      "ماء ورد",
+      "سكر",
+      "نشا",
+      "فستق"
+    ],
+    "ingredients_fr": [
+      "Lait",
+      "Eau de rose",
+      "Sucre",
+      "Amidon",
+      "Pistaches"
+    ],
+    "created_at": "2024-01-01T10:00:00"
+  }
+]

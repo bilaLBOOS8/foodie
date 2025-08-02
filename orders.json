@@ -1,0 +1,128 @@
+[
+    {
+        "id": 1,
+        "order_number": "ORD001",
+        "tracking_code": "A1B2C3D4",
+        "customer_name": "أحمد محمد",
+        "customer_phone": "0612345678",
+        "customer_address": "شارع الحسن الثاني، الرباط",
+        "customer_location": "الرباط",
+        "latitude": 34.0209,
+        "longitude": -6.8416,
+        "notes": "يرجى الاتصال قبل التوصيل",
+        "items": [
+            {
+                "id": 1,
+                "name": "برجر كلاسيكي",
+                "price": 45,
+                "quantity": 2
+            },
+            {
+                "id": 2,
+                "name": "بيتزا مارجريتا",
+                "price": 65,
+                "quantity": 1
+            }
+        ],
+        "total": 155,
+        "status": "قيد التحضير",
+        "created_at": "2024-01-15 14:30:00",
+        "updated_at": "2024-01-15 14:35:00"
+    },
+    {
+        "id": 2,
+        "order_number": "ORD002",
+        "tracking_code": "X9Y8Z7W6",
+        "customer_name": "فاطمة الزهراء",
+        "customer_phone": "0687654321",
+        "customer_address": "حي الأندلس، الدار البيضاء",
+        "customer_location": "الدار البيضاء",
+        "latitude": 33.5731,
+        "longitude": -7.5898,
+        "notes": "الطابق الثالث، شقة رقم 12",
+        "items": [
+            {
+                "id": 3,
+                "name": "سلطة قيصر",
+                "price": 35,
+                "quantity": 1
+            },
+            {
+                "id": 4,
+                "name": "عصير برتقال طبيعي",
+                "price": 15,
+                "quantity": 2
+            }
+        ],
+        "total": 65,
+        "status": "تم التوصيل",
+        "created_at": "2024-01-15 12:15:00",
+        "updated_at": "2024-01-15 13:45:00"
+    },
+    {
+        "id": 3,
+        "order_number": "ORD003",
+        "tracking_code": "M5N4P3Q2",
+        "customer_name": "يوسف العلوي",
+        "customer_phone": "0644100401",
+        "customer_address": "شارع محمد الخامس، مكناس",
+        "customer_location": "مكناس",
+        "latitude": 33.8935,
+        "longitude": -5.5473,
+        "notes": "بجانب مقهى الأندلس",
+        "items": [
+            {
+                "id": 5,
+                "name": "تاجين دجاج بالزيتون",
+                "price": 75,
+                "quantity": 1
+            },
+            {
+                "id": 6,
+                "name": "كسكس بالخضار",
+                "price": 55,
+                "quantity": 1
+            },
+            {
+                "id": 7,
+                "name": "أتاي مغربي",
+                "price": 10,
+                "quantity": 2
+            }
+        ],
+        "total": 150,
+        "status": "في الطريق",
+        "created_at": "2024-01-15 16:20:00",
+        "updated_at": "2024-01-15 17:10:00"
+    },
+    {
+        "id": 4,
+        "order_number": "ORD004",
+        "tracking_code": "R8S7T6U5",
+        "customer_name": "خديجة المرابط",
+        "customer_phone": "0655443322",
+        "customer_address": "حي النهضة، فاس",
+        "customer_location": "فاس",
+        "latitude": 34.0181,
+        "longitude": -5.0078,
+        "notes": "الطلب جاهز للاستلام",
+        "items": [
+            {
+                "id": 8,
+                "name": "بسطيلة بالدجاج",
+                "price": 95,
+                "quantity": 1
+            },
+            {
+                "id": 9,
+                "name": "سلطة مغربية",
+                "price": 25,
+                "quantity": 2
+            }
+        ],
+        "total": 145,
+        "status": "جاهز",
+        "created_at": "2024-01-15 18:00:00",
+        "updated_at": "2024-01-15 18:45:00"
+    }
+]

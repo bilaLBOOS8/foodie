@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+
+{% block title %}إعدادات الإدارة - Foodie{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cogs me-2"></i>
+                        لوحة الإعدادات
+                    </h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('admin') }}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tachometer-alt me-2"></i>
+                        لوحة التحكم
+                    </a>
+                    <a href="#restaurant-info" class="list-group-item list-group-item-action active" data-bs-toggle="pill">
+                        <i class="fas fa-store me-2"></i>
+                        معلومات المطعم
+                    </a>
+                    <a href="#working-hours" class="list-group-item list-group-item-action" data-bs-toggle="pill">
+                        <i class="fas fa-clock me-2"></i>
+                        أوقات العمل
+                    </a>
+                    <a href="#admin-credentials" class="list-group-item list-group-item-action" data-bs-toggle="pill">
+                        <i class="fas fa-key me-2"></i>
+                        بيانات الدخول
+                    </a>
+                    <a href="#app-settings" class="list-group-item list-group-item-action" data-bs-toggle="pill">
+                        <i class="fas fa-sliders-h me-2"></i>
+                        إعدادات التطبيق
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="tab-content">
+                <!-- معلومات المطعم -->
+                <div class="tab-pane fade show active" id="restaurant-info">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-store me-2"></i>
+                                معلومات المطعم
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="{{ url_for('update_restaurant_info') }}">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="name" class="form-label">اسم المطعم (عربي)</label>
+                                        <input type="text" class="form-control" id="name" name="name" 
+                                               value="{{ settings.restaurant_info.name }}" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="name_fr" class="form-label">اسم المطعم (فرنسي)</label>
+                                        <input type="text" class="form-control" id="name_fr" name="name_fr" 
+                                               value="{{ settings.restaurant_info.name_fr }}" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="phone" class="form-label">رقم الهاتف</label>
+                                        <input type="tel" class="form-control" id="phone" name="phone" 
+                                               value="{{ settings.restaurant_info.phone }}" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="email" class="form-label">البريد الإلكتروني</label>
+                                        <input type="email" class="form-control" id="email" name="email" 
+                                               value="{{ settings.restaurant_info.email }}">
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="location" class="form-label">المدينة (عربي)</label>
+                                        <input type="text" class="form-control" id="location" name="location" 
+                                               value="{{ settings.restaurant_info.location }}" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="location_fr" class="form-label">المدينة (فرنسي)</label>
+                                        <input type="text" class="form-control" id="location_fr" name="location_fr" 
+                                               value="{{ settings.restaurant_info.location_fr }}" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="address" class="form-label">العنوان (عربي)</label>
+                                        <textarea class="form-control" id="address" name="address" rows="3">{{ settings.restaurant_info.address }}</textarea>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="address_fr" class="form-label">العنوان (فرنسي)</label>
+                                        <textarea class="form-control" id="address_fr" name="address_fr" rows="3">{{ settings.restaurant_info.address_fr }}</textarea>
+                                    </div>
+                                </div>
+                                
+                                <h6 class="mt-4 mb-3">وسائل التواصل الاجتماعي</h6>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="facebook" class="form-label">
+                                            <i class="fab fa-facebook me-2"></i>فيسبوك
+                                        </label>
+                                        <input type="url" class="form-control" id="facebook" name="facebook" 
+                                               value="{{ settings.restaurant_info.social_media.facebook }}">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="instagram" class="form-label">
+                                            <i class="fab fa-instagram me-2"></i>إنستغرام
+                                        </label>
+                                        <input type="url" class="form-control" id="instagram" name="instagram" 
+                                               value="{{ settings.restaurant_info.social_media.instagram }}">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="twitter" class="form-label">
+                                            <i class="fab fa-twitter me-2"></i>تويتر
+                                        </label>
+                                        <input type="url" class="form-control" id="twitter" name="twitter" 
+                                               value="{{ settings.restaurant_info.social_media.twitter }}">
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>
+                                    حفظ التغييرات
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- أوقات العمل -->
+                <div class="tab-pane fade" id="working-hours">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-clock me-2"></i>
+                                أوقات العمل
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="{{ url_for('update_restaurant_info') }}">
+                                {% set days = {
+                                    'monday': 'الإثنين',
+                                    'tuesday': 'الثلاثاء', 
+                                    'wednesday': 'الأربعاء',
+                                    'thursday': 'الخميس',
+                                    'friday': 'الجمعة',
+                                    'saturday': 'السبت',
+                                    'sunday': 'الأحد'
+                                } %}
+                                
+                                {% for day_en, day_ar in days.items() %}
+                                <div class="row align-items-center mb-3">
+                                    <div class="col-md-2">
+                                        <strong>{{ day_ar }}</strong>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">من</label>
+                                        <input type="time" class="form-control" name="{{ day_en }}_open" 
+                                               value="{{ settings.restaurant_info.working_hours[day_en].open }}"
+                                               {% if settings.restaurant_info.working_hours[day_en].closed %}disabled{% endif %}>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">إلى</label>
+                                        <input type="time" class="form-control" name="{{ day_en }}_close" 
+                                               value="{{ settings.restaurant_info.working_hours[day_en].close }}"
+                                               {% if settings.restaurant_info.working_hours[day_en].closed %}disabled{% endif %}>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="{{ day_en }}_closed" 
+                                                   id="{{ day_en }}_closed" 
+                                                   {% if settings.restaurant_info.working_hours[day_en].closed %}checked{% endif %}
+                                                   onchange="toggleDayInputs('{{ day_en }}')">
+                                            <label class="form-check-label" for="{{ day_en }}_closed">
+                                                مغلق
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>
+                                    حفظ أوقات العمل
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- بيانات الدخول -->
+                <div class="tab-pane fade" id="admin-credentials">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-key me-2"></i>
+                                تغيير بيانات الدخول
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                تأكد من حفظ بيانات الدخول الجديدة في مكان آمن
+                            </div>
+                            
+                            <form method="POST" action="{{ url_for('update_admin_credentials') }}">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="current_password" class="form-label">كلمة المرور الحالية</label>
+                                        <input type="password" class="form-control" id="current_password" name="current_password" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="new_username" class="form-label">اسم المستخدم الجديد</label>
+                                        <input type="text" class="form-control" id="new_username" name="new_username" 
+                                               value="{{ settings.admin_credentials.username }}" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="new_password" class="form-label">كلمة المرور الجديدة</label>
+                                        <input type="password" class="form-control" id="new_password" name="new_password" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="confirm_password" class="form-label">تأكيد كلمة المرور</label>
+                                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="fas fa-key me-2"></i>
+                                    تحديث بيانات الدخول
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- إعدادات التطبيق -->
+                <div class="tab-pane fade" id="app-settings">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-sliders-h me-2"></i>
+                                إعدادات التطبيق
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="{{ url_for('update_app_settings') }}">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="currency" class="form-label">العملة (عربي)</label>
+                                        <input type="text" class="form-control" id="currency" name="currency" 
+                                               value="{{ settings.app_settings.currency }}" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="currency_fr" class="form-label">العملة (فرنسي)</label>
+                                        <input type="text" class="form-control" id="currency_fr" name="currency_fr" 
+                                               value="{{ settings.app_settings.currency_fr }}" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="tax_rate" class="form-label">معدل الضريبة (%)</label>
+                                        <input type="number" class="form-control" id="tax_rate" name="tax_rate" 
+                                               value="{{ settings.app_settings.tax_rate }}" step="0.01" min="0">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="delivery_fee" class="form-label">رسوم التوصيل</label>
+                                        <input type="number" class="form-control" id="delivery_fee" name="delivery_fee" 
+                                               value="{{ settings.app_settings.delivery_fee }}" step="0.01" min="0">
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="min_order_amount" class="form-label">أقل مبلغ للطلب</label>
+                                        <input type="number" class="form-control" id="min_order_amount" name="min_order_amount" 
+                                               value="{{ settings.app_settings.min_order_amount }}" step="0.01" min="0">
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>
+                                    حفظ الإعدادات
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleDayInputs(day) {
+    const checkbox = document.getElementById(day + '_closed');
+    const openInput = document.querySelector(`input[name="${day}_open"]`);
+    const closeInput = document.querySelector(`input[name="${day}_close"]`);
+    
+    if (checkbox.checked) {
+        openInput.disabled = true;
+        closeInput.disabled = true;
+    } else {
+        openInput.disabled = false;
+        closeInput.disabled = false;
+    }
+}
+</script>
+{% endblock %}

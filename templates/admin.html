@@ -1,0 +1,686 @@
+{% extends "base.html" %}
+
+{% block title %}Foodie - لوحة الإدارة{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="display-6 text-primary">
+                    <i class="fas fa-cogs me-3"></i>
+                    {% if get_language() == 'ar' %}
+                        لوحة إدارة المطعم
+                    {% else %}
+                        Panneau d'Administration
+                    {% endif %}
+                </h1>
+                <div>
+                    <span class="badge bg-success me-2">
+                        <i class="fas fa-user me-1"></i>
+                        {% if get_language() == 'ar' %}
+                            مرحباً، المدير
+                        {% else %}
+                            Bonjour, Admin
+                        {% endif %}
+                    </span>
+                    <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-danger btn-sm">
+                        <i class="fas fa-sign-out-alt me-1"></i>
+                        {% if get_language() == 'ar' %}
+                            تسجيل الخروج
+                        {% else %}
+                            Déconnexion
+                        {% endif %}
+                    </a>
+                </div>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary" onclick="showSection('orders')">
+                        <i class="fas fa-list-alt me-2"></i>
+                        الطلبات
+                    </button>
+                    <button type="button" class="btn btn-outline-warning" onclick="showSection('menu')">
+                        <i class="fas fa-utensils me-2"></i>
+                        إدارة القائمة
+                    </button>
+                    <button type="button" class="btn btn-outline-success" onclick="showSection('stats')">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        الإحصائيات
+                    </button>
+                    <a href="{{ url_for('admin_settings') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-cogs me-2"></i>
+                        الإعدادات
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Section -->
+    <div id="orders-section" class="admin-section">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3 class="text-primary mb-3">
+                    <i class="fas fa-shopping-bag me-2"></i>
+                    الطلبات الحالية
+                </h3>
+            </div>
+        </div>
+
+        {% if orders %}
+            <div class="row">
+                {% for order in orders %}
+                <div class="col-lg-6 col-xl-4 mb-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">
+                                <i class="fas fa-receipt me-2"></i>
+                                طلب #{{ order.id }}
+                            </h6>
+                            <span class="badge {% if order.status == 'جديد' %}bg-warning{% elif order.status == 'قيد التحضير' %}bg-info{% else %}bg-success{% endif %}">
+                                {{ order.status }}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6 class="text-muted mb-1">
+                                    <i class="fas fa-user me-2"></i>
+                                    بيانات العميل
+                                </h6>
+                                <p class="mb-1"><strong>الاسم:</strong> {{ order.customer_name }}</p>
+                                <p class="mb-1">
+                                    <strong>الهاتف:</strong> {{ order.customer_phone }}
+                                    {% if order.customer_phone %}
+                                    <a href="https://wa.me/{{ order.customer_phone.replace(' ', '').replace('-', '').replace('(', '').replace(')', '') }}?text=مرحباً {{ order.customer_name }}، بخصوص طلبكم رقم {{ order.order_number }}" 
+                                       target="_blank" class="btn btn-sm btn-success ms-2">
+                                        <i class="fab fa-whatsapp me-1"></i>
+                                        واتساب
+                                    </a>
+                                    {% endif %}
+                                </p>
+                                <p class="mb-1"><strong>العنوان:</strong> {{ order.customer_address }}</p>
+                                {% if order.customer_location %}
+                                <p class="mb-1">
+                                    <strong>الموقع:</strong> {{ order.customer_location }}
+                                    {% if order.latitude and order.longitude %}
+                                    <a href="https://www.google.com/maps?q={{ order.latitude }},{{ order.longitude }}" 
+                                       target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                                        <i class="fas fa-map-marker-alt me-1"></i>
+                                        عرض على الخريطة
+                                    </a>
+                                    {% endif %}
+                                </p>
+                                {% endif %}
+                                {% if order.notes %}
+                                <p class="mb-1"><strong>ملاحظات:</strong> {{ order.notes }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6 class="text-muted mb-2">
+                                    <i class="fas fa-list me-2"></i>
+                                    تفاصيل الطلب
+                                </h6>
+                                {% for item in order['items'] %}
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span>{{ item.name }} × {{ item.quantity }}</span>
+                                    <span class="text-primary fw-bold">{{ "%.2f"|format(item.price * item.quantity) }} د.م</span>
+                                </div>
+                                {% endfor %}
+                                <hr>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong>المجموع:</strong>
+                                    <strong class="text-primary">{{ "%.2f"|format(order.total) }} د.م</strong>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ order.created_at }}
+                                </small>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-light">
+                            <form method="POST" action="{{ url_for('update_order_status') }}" class="d-flex gap-2">
+                                <input type="hidden" name="order_id" value="{{ order.id }}">
+                                <select name="status" class="form-select form-select-sm">
+                                    <option value="جديد" {% if order.status == 'جديد' %}selected{% endif %}>جديد</option>
+                                    <option value="قيد التحضير" {% if order.status == 'قيد التحضير' %}selected{% endif %}>قيد التحضير</option>
+                                    <option value="جاهز" {% if order.status == 'جاهز' %}selected{% endif %}>جاهز</option>
+                                    <option value="في الطريق" {% if order.status == 'في الطريق' %}selected{% endif %}>في الطريق</option>
+                                    <option value="تم التوصيل" {% if order.status == 'تم التوصيل' %}selected{% endif %}>تم التوصيل</option>
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-save"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">لا توجد طلبات حالياً</h4>
+                <p class="text-muted">ستظهر الطلبات الجديدة هنا عند وصولها</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Menu Management Section -->
+    <div id="menu-section" class="admin-section" style="display: none;">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h3 class="text-warning mb-0">
+                        <i class="fas fa-utensils me-2"></i>
+                        إدارة القائمة
+                    </h3>
+                    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#addItemModal">
+                        <i class="fas fa-plus me-2"></i>
+                        إضافة وجبة جديدة
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {% if menu %}
+            <div class="row">
+                {% for item in menu %}
+                <div class="col-lg-6 col-xl-4 mb-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h6 class="card-title mb-0">{{ item.name }}</h6>
+                                {% if item.featured %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-star"></i>
+                                    مميز
+                                </span>
+                                {% endif %}
+                            </div>
+                            <p class="card-text text-muted small">{{ item.description }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-secondary">{{ item.category }}</span>
+                                <span class="text-primary fw-bold">{{ "%.2f"|format(item.price) }} د.م</span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-light d-flex gap-2">
+                            <form method="POST" action="{{ url_for('toggle_item_availability') }}" style="display: inline;">
+                                <input type="hidden" name="item_id" value="{{ item.id }}">
+                                <button type="submit" class="btn btn-sm btn-{{ 'success' if item.available else 'danger' }}">
+                                    <i class="fas fa-{{ 'check' if item.available else 'times' }}"></i>
+                                    {{ 'متوفر' if item.available else 'غير متوفر' }}
+                                </button>
+                            </form>
+                            <button class="btn btn-sm btn-outline-primary flex-fill" onclick="editItem({{ item.id }}, '{{ item.name }}', '{{ item.name_fr or '' }}', '{{ item.description }}', '{{ item.description_fr or '' }}', {{ item.price }}, '{{ item.category }}', '{{ item.category_fr or '' }}', {{ item.preparation_time or 30 }}, '{{ item.ingredients|join(',') if item.ingredients else '' }}', '{{ item.ingredients_fr|join(',') if item.ingredients_fr else '' }}', {{ item.available|lower }})"
+                                <i class="fas fa-edit"></i>
+                                تعديل
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteItem({{ item.id }}, '{{ item.name }}')">
+                                <i class="fas fa-trash"></i>
+                                حذف
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-utensils fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">لا توجد وجبات في القائمة</h4>
+                <p class="text-muted">ابدأ بإضافة وجبات جديدة لقائمة المطعم</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Statistics Section -->
+    <div id="stats-section" class="admin-section" style="display: none;">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3 class="text-success mb-3">
+                    <i class="fas fa-chart-bar me-2"></i>
+                    إحصائيات المطعم
+                </h3>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center">
+                    <div class="card-body">
+                        <i class="fas fa-shopping-bag fa-3x text-primary mb-3"></i>
+                        <h4 class="text-primary">{{ orders|length }}</h4>
+                        <p class="text-muted mb-0">إجمالي الطلبات</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center">
+                    <div class="card-body">
+                        <i class="fas fa-clock fa-3x text-warning mb-3"></i>
+                        <h4 class="text-warning">{{ orders|selectattr('status', 'equalto', 'قيد التحضير')|list|length }}</h4>
+                        <p class="text-muted mb-0">قيد التحضير</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center">
+                    <div class="card-body">
+                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                        <h4 class="text-success">{{ orders|selectattr('status', 'equalto', 'تم التوصيل')|list|length }}</h4>
+                        <p class="text-muted mb-0">تم التوصيل</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center">
+                    <div class="card-body">
+                        <i class="fas fa-utensils fa-3x text-info mb-3"></i>
+                        <h4 class="text-info">{{ menu|length }}</h4>
+                        <p class="text-muted mb-0">وجبات في القائمة</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-money-bill-wave me-2"></i>
+                            إجمالي المبيعات
+                        </h6>
+                    </div>
+                    <div class="card-body text-center">
+                        {% set total_sales = orders|sum(attribute='total') %}
+                        <h2 class="text-success mb-0">{{ "%.2f"|format(total_sales) }} د.م</h2>
+                        <p class="text-muted">إجمالي المبيعات من جميع الطلبات</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Item Modal -->
+<div class="modal fade" id="addItemModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus me-2"></i>
+                    إضافة وجبة جديدة
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('add_menu_item') }}" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="itemName" class="form-label">اسم الوجبة (عربي)</label>
+                                <input type="text" class="form-control" id="itemName" name="name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="itemNameFr" class="form-label">اسم الوجبة (فرنسي)</label>
+                                <input type="text" class="form-control" id="itemNameFr" name="name_fr">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="itemDescription" class="form-label">وصف الوجبة (عربي)</label>
+                                <textarea class="form-control" id="itemDescription" name="description" rows="3" required></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="itemDescriptionFr" class="form-label">وصف الوجبة (فرنسي)</label>
+                                <textarea class="form-control" id="itemDescriptionFr" name="description_fr" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="itemPrice" class="form-label">السعر (د.م)</label>
+                                <input type="number" class="form-control" id="itemPrice" name="price" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="itemCategory" class="form-label">التصنيف (عربي)</label>
+                                <input type="text" class="form-control" id="itemCategory" name="category" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="itemCategoryFr" class="form-label">التصنيف (فرنسي)</label>
+                                <input type="text" class="form-control" id="itemCategoryFr" name="category_fr">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="itemPreparationTime" class="form-label">وقت التحضير (دقيقة)</label>
+                                <input type="number" class="form-control" id="itemPreparationTime" name="preparation_time" min="5" max="120" value="15">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">متوفر</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="itemAvailable" name="available" checked>
+                                    <label class="form-check-label" for="itemAvailable">
+                                        العنصر متوفر للطلب
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="itemIngredients" class="form-label">المكونات (عربي) - مفصولة بفاصلة</label>
+                                <textarea class="form-control" id="itemIngredients" name="ingredients" rows="2"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="itemIngredientsFr" class="form-label">المكونات (فرنسي) - مفصولة بفاصلة</label>
+                                <textarea class="form-control" id="itemIngredientsFr" name="ingredients_fr" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="itemImage" class="form-label">صورة المنتج</label>
+                        <input type="file" class="form-control" id="itemImage" name="image" accept="image/*">
+                        <div class="form-text">يُفضل استخدام صور بحجم 400x300 بكسل أو أكبر</div>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="itemFeatured" name="featured">
+                        <label class="form-check-label" for="itemFeatured">
+                            وجبة مميزة (تظهر في الصفحة الرئيسية)
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-save me-2"></i>
+                        حفظ الوجبة
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.admin-section {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.btn-group .btn {
+    border-radius: 25px !important;
+    margin: 0 2px;
+}
+
+.badge {
+    font-size: 0.75rem;
+}
+</style>
+
+</div>
+
+<!-- نموذج تعديل العنصر -->
+<div class="modal fade" id="editItemModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit me-2"></i>
+                    {% if get_language() == 'ar' %}
+                        تعديل العنصر
+                    {% else %}
+                        Modifier l'article
+                    {% endif %}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('edit_menu_item') }}" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" id="edit_item_id" name="item_id">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">الاسم (عربي)</label>
+                                <input type="text" class="form-control" id="edit_name" name="name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">الاسم (فرنسي)</label>
+                                <input type="text" class="form-control" id="edit_name_fr" name="name_fr">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">الوصف (عربي)</label>
+                                <textarea class="form-control" id="edit_description" name="description" rows="3" required></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">الوصف (فرنسي)</label>
+                                <textarea class="form-control" id="edit_description_fr" name="description_fr" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="editItemPrice" class="form-label">السعر (د.م)</label>
+                                <input type="number" class="form-control" id="editItemPrice" name="price" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="editItemCategory" class="form-label">التصنيف (عربي)</label>
+                                <input type="text" class="form-control" id="editItemCategory" name="category" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="editItemCategoryFr" class="form-label">التصنيف (فرنسي)</label>
+                                <input type="text" class="form-control" id="editItemCategoryFr" name="category_fr">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editItemPreparationTime" class="form-label">وقت التحضير (دقيقة)</label>
+                                <input type="number" class="form-control" id="editItemPreparationTime" name="preparation_time" min="5" max="120">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">متوفر</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="editItemAvailable" name="available">
+                                    <label class="form-check-label" for="editItemAvailable">
+                                        العنصر متوفر للطلب
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                         <div class="col-md-6">
+                             <div class="mb-3">
+                                 <label for="editItemIngredients" class="form-label">المكونات (عربي) - مفصولة بفاصلة</label>
+                                 <textarea class="form-control" id="editItemIngredients" name="ingredients" rows="2"></textarea>
+                             </div>
+                         </div>
+                         <div class="col-md-6">
+                             <div class="mb-3">
+                                 <label for="editItemIngredientsFr" class="form-label">المكونات (فرنسي) - مفصولة بفاصلة</label>
+                                 <textarea class="form-control" id="editItemIngredientsFr" name="ingredients_fr" rows="2"></textarea>
+                             </div>
+                         </div>
+                     </div>
+                     
+                     <div class="mb-3">
+                         <label for="editItemImage" class="form-label">تحديث صورة المنتج (اختياري)</label>
+                         <input type="file" class="form-control" id="editItemImage" name="image" accept="image/*">
+                         <div class="form-text">اترك فارغاً للاحتفاظ بالصورة الحالية</div>
+                     </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>
+                        إلغاء
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>
+                        حفظ التغييرات
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- نموذج تأكيد الحذف -->
+<div class="modal fade" id="deleteItemModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {% if get_language() == 'ar' %}
+                        تأكيد الحذف
+                    {% else %}
+                        Confirmer la suppression
+                    {% endif %}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">
+                    {% if get_language() == 'ar' %}
+                        هل أنت متأكد من حذف العنصر: <strong id="delete_item_name"></strong>؟
+                        <br><small class="text-muted">لا يمكن التراجع عن هذا الإجراء.</small>
+                    {% else %}
+                        Êtes-vous sûr de vouloir supprimer l'article: <strong id="delete_item_name"></strong>?
+                        <br><small class="text-muted">Cette action ne peut pas être annulée.</small>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    إلغاء
+                </button>
+                <form method="POST" action="{{ url_for('delete_menu_item') }}" style="display: inline;">
+                    <input type="hidden" id="delete_item_id" name="item_id">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-1"></i>
+                        حذف نهائي
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showSection(section) {
+    // Hide all sections
+    document.querySelectorAll('.admin-section').forEach(el => {
+        el.style.display = 'none';
+    });
+    
+    // Show selected section
+    document.getElementById(section + '-section').style.display = 'block';
+    
+    // Update button states
+    document.querySelectorAll('.btn-group .btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+}
+
+function editItem(id, name, nameFr, description, descriptionFr, price, category, categoryFr, preparationTime, ingredients, ingredientsFr, available) {
+    // ملء نموذج التعديل بالبيانات الحالية
+    document.getElementById('edit_item_id').value = id;
+    document.getElementById('edit_name').value = name || '';
+    document.getElementById('edit_description').value = description || '';
+    document.getElementById('editItemPrice').value = price || '';
+    document.getElementById('editItemCategory').value = category || '';
+    document.getElementById('edit_name_fr').value = nameFr || '';
+    document.getElementById('edit_description_fr').value = descriptionFr || '';
+    document.getElementById('editItemCategoryFr').value = categoryFr || '';
+    document.getElementById('editItemPreparationTime').value = preparationTime || '';
+    
+    // معالجة المكونات
+    document.getElementById('editItemIngredients').value = ingredients || '';
+    document.getElementById('editItemIngredientsFr').value = ingredientsFr || '';
+    
+    // معالجة حالة التوفر
+    document.getElementById('editItemAvailable').checked = available === 'true' || available === true;
+    
+    // عرض النموذج
+    var editModal = new bootstrap.Modal(document.getElementById('editItemModal'));
+    editModal.show();
+}
+
+function deleteItem(id, name) {
+    // ملء نموذج الحذف
+    document.getElementById('delete_item_id').value = id;
+    document.getElementById('delete_item_name').textContent = name;
+    
+    // عرض نموذج التأكيد
+    var deleteModal = new bootstrap.Modal(document.getElementById('deleteItemModal'));
+    deleteModal.show();
+}
+
+// Auto-refresh orders every 30 seconds
+setInterval(function() {
+    if (document.getElementById('orders-section').style.display !== 'none') {
+        location.reload();
+    }
+}, 30000);
+</script>
+{% endblock %}

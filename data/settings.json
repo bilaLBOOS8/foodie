@@ -1,0 +1,65 @@
+{
+  "restaurant_info": {
+    "name": "فودي",
+    "name_fr": "Foodie",
+    "phone": "0644100401",
+    "location": "مكناس",
+    "location_fr": "Meknes",
+    "address": "مكناس ",
+    "address_fr": "Meknes",
+    "email": "elbakkalybilal531@gmail.com",
+    "working_hours": {
+      "monday": {
+        "open": null,
+        "close": null,
+        "closed": false
+      },
+      "tuesday": {
+        "open": null,
+        "close": null,
+        "closed": false
+      },
+      "wednesday": {
+        "open": null,
+        "close": null,
+        "closed": false
+      },
+      "thursday": {
+        "open": null,
+        "close": null,
+        "closed": false
+      },
+      "friday": {
+        "open": null,
+        "close": null,
+        "closed": false
+      },
+      "saturday": {
+        "open": null,
+        "close": null,
+        "closed": false
+      },
+      "sunday": {
+        "open": null,
+        "close": null,
+        "closed": false
+      }
+    },
+    "social_media": {
+      "facebook": "",
+      "instagram": "",
+      "twitter": ""
+    }
+  },
+  "admin_credentials": {
+    "username": "admin",
+    "password": "foodie2024"
+  },
+  "app_settings": {
+    "currency": "د.م",
+    "currency_fr": "MAD",
+    "tax_rate": 0.0,
+    "delivery_fee": 15.0,
+    "min_order_amount": 50.0
+  }
+}

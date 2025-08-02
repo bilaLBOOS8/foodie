@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}تتبع الطلب - Foodie{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3 class="mb-0">
+                        <i class="fas fa-search me-2"></i>
+                        {% if get_language() == 'ar' %}
+                            تتبع طلبك
+                        {% else %}
+                            Suivre votre commande
+                        {% endif %}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {% if not found %}
+                    <!-- نموذج البحث -->
+                    <form method="POST">
+                        <div class="mb-4">
+                            <label for="tracking_code" class="form-label">
+                                {% if get_language() == 'ar' %}
+                                    رمز التتبع
+                                {% else %}
+                                    Code de suivi
+                                {% endif %}
+                            </label>
+                            <input type="text" class="form-control form-control-lg" id="tracking_code" name="tracking_code" 
+                                   placeholder="{% if get_language() == 'ar' %}أدخل رمز التتبع{% else %}Entrez le code de suivi{% endif %}" 
+                                   required maxlength="8" style="text-transform: uppercase;">
+                            <div class="form-text">
+                                {% if get_language() == 'ar' %}
+                                    رمز التتبع مكون من 8 أحرف وأرقام (مثال: A1B2C3D4)
+                                {% else %}
+                                    Le code de suivi est composé de 8 caractères (exemple: A1B2C3D4)
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-search me-2"></i>
+                                {% if get_language() == 'ar' %}
+                                    تتبع الطلب
+                                {% else %}
+                                    Suivre la commande
+                                {% endif %}
+                            </button>
+                        </div>
+                    </form>
+                    {% else %}
+                    <!-- نتائج التتبع -->
+                    <div class="order-tracking-result">
+                        <div class="text-center mb-4">
+                            <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
+                            <h4 class="mt-3">
+                                {% if get_language() == 'ar' %}
+                                    تم العثور على طلبك!
+                                {% else %}
+                                    Commande trouvée!
+                                {% endif %}
+                            </h4>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">
+                                            {% if get_language() == 'ar' %}
+                                                معلومات الطلب
+                                            {% else %}
+                                                Informations de commande
+                                            {% endif %}
+                                        </h6>
+                                        <p class="mb-1"><strong>{% if get_language() == 'ar' %}رقم الطلب:{% else %}Numéro:{% endif %}</strong> {{ order.order_number }}</p>
+                                        <p class="mb-1"><strong>{% if get_language() == 'ar' %}رمز التتبع:{% else %}Code de suivi:{% endif %}</strong> <span class="badge bg-primary">{{ order.tracking_code }}</span></p>
+                                        <p class="mb-1"><strong>{% if get_language() == 'ar' %}اسم العميل:{% else %}Client:{% endif %}</strong> {{ order.customer_name }}</p>
+                                        <p class="mb-1"><strong>{% if get_language() == 'ar' %}تاريخ الطلب:{% else %}Date:{% endif %}</strong> {{ order.created_at }}</p>
+                                        <p class="mb-0"><strong>{% if get_language() == 'ar' %}المجموع:{% else %}Total:{% endif %}</strong> {{ order.total }} {% if get_language() == 'ar' %}د.م{% else %}MAD{% endif %}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">
+                                            {% if get_language() == 'ar' %}
+                                                حالة الطلب
+                                            {% else %}
+                                                Statut de la commande
+                                            {% endif %}
+                                        </h6>
+                                        {% set status_class = 'warning' %}
+                                        {% if order.status == 'تم التوصيل' or order.status == 'Livré' %}
+                                            {% set status_class = 'success' %}
+                                        {% elif order.status == 'قيد التحضير' or order.status == 'En préparation' %}
+                                            {% set status_class = 'info' %}
+                                        {% elif order.status == 'جاهز' %}
+                                            {% set status_class = 'warning' %}
+                                        {% elif order.status == 'في الطريق' or order.status == 'En route' %}
+                                            {% set status_class = 'primary' %}
+                                        {% endif %}
+                                        <span class="badge bg-{{ status_class }} fs-6 p-3">{{ order.status }}</span>
+                                        
+                                        {% if order.get('updated_at') %}
+                                        <p class="mt-3 mb-0 small text-muted">
+                                            {% if get_language() == 'ar' %}
+                                                آخر تحديث: {{ order.updated_at }}
+                                            {% else %}
+                                                Dernière mise à jour: {{ order.updated_at }}
+                                            {% endif %}
+                                        </p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- تفاصيل الطلب -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    {% if get_language() == 'ar' %}
+                                        تفاصيل الطلب
+                                    {% else %}
+                                        Détails de la commande
+                                    {% endif %}
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                {% for item in order['items'] %}
+                                <div class="d-flex justify-content-between align-items-center py-2 {% if not loop.last %}border-bottom{% endif %}">
+                                    <div>
+                                        <strong>{{ item.name }}</strong>
+                                        <span class="text-muted">x{{ item.quantity }}</span>
+                                    </div>
+                                    <span>{{ item.price * item.quantity }} {% if get_language() == 'ar' %}د.م{% else %}MAD{% endif %}</span>
+                                </div>
+                                {% endfor %}
+                                <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                                    <strong>
+                                        {% if get_language() == 'ar' %}
+                                            المجموع الكلي
+                                        {% else %}
+                                            Total
+                                        {% endif %}
+                                    </strong>
+                                    <strong class="text-primary">{{ order.total }} {% if get_language() == 'ar' %}د.م{% else %}MAD{% endif %}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <a href="{{ url_for('track_order') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-search me-2"></i>
+                                {% if get_language() == 'ar' %}
+                                    تتبع طلب آخر
+                                {% else %}
+                                    Suivre une autre commande
+                                {% endif %}
+                            </a>
+                            <a href="{{ url_for('home') }}" class="btn btn-primary ms-2">
+                                <i class="fas fa-home me-2"></i>
+                                {% if get_language() == 'ar' %}
+                                    العودة للرئيسية
+                                {% else %}
+                                    Retour à l'accueil
+                                {% endif %}
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// تحويل النص إلى أحرف كبيرة تلقائياً
+document.getElementById('tracking_code')?.addEventListener('input', function(e) {
+    e.target.value = e.target.value.toUpperCase();
+});
+</script>
+{% endblock %}
