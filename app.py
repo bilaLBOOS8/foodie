@@ -280,14 +280,22 @@ def admin_logout():
     session.pop('admin_logged_in', None)
     return redirect(url_for('admin_login'))
 
+# في دالة admin route، تأكد من تمرير البيانات الصحيحة
 @app.route('/admin')
 @login_required
 def admin():
-    menu_items = MenuItem.query.all()
-    orders = Order.query.order_by(Order.created_at.desc()).all()
-    return render_template('admin.html', 
-                         menu=[item.to_dict() for item in menu_items], 
-                         orders=[order.to_dict() for order in orders])
+    try:
+        orders = Order.query.all()
+        # تأكد من أن كل order له total
+        for order in orders:
+            if not hasattr(order, 'total'):
+                order.total = sum(item.get('price', 0) * item.get('quantity', 1) 
+                                for item in order.items if isinstance(order.items, list))
+        
+        return render_template('admin.html', orders=orders)
+    except Exception as e:
+        print(f"Admin route error: {e}")
+        return render_template('admin.html', orders=[])
 
 @app.route('/update_order_status', methods=['POST'])
 @login_required

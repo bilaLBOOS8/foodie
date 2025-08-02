@@ -129,7 +129,8 @@
                                 <hr>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <strong>المجموع:</strong>
-                                    <strong class="text-primary">{{ "%.2f"|format(order.total) }} د.م</strong>
+                                    <!-- بدلاً من order.total مباشرة -->
+                                    <strong class="text-primary">{{ "%.2f"|format(order.total if order.total else 0) }} ر.س</strong>
                                 </div>
                             </div>
                             

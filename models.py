@@ -84,3 +84,10 @@ class Settings(db.Model):
             'value': json.loads(self.value) if self.value else {},
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
+    
+    @property
+    def total(self):
+        """Calculate total price for the order"""
+        if isinstance(self.items, list):
+            return sum(item.get('price', 0) * item.get('quantity', 1) for item in self.items)
+        return 0.0
