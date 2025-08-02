@@ -2,19 +2,14 @@ import os
 from urllib.parse import urlparse
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-secret-key-here-change-in-production'
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-secret-key-here'
     
-    # Database configuration
-    DATABASE_URL = os.environ.get('DATABASE_URL')
-    if DATABASE_URL:
-        # Fix for Render's postgres:// URL
-        if DATABASE_URL.startswith('postgres://'):
-            DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
-        SQLALCHEMY_DATABASE_URI = DATABASE_URL
-    else:
-        # Local development with SQLite
-        SQLALCHEMY_DATABASE_URI = 'sqlite:///foodie.db'
+    # Database configuration with error handling
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url and database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
     
+    SQLALCHEMY_DATABASE_URI = database_url or 'sqlite:///foodie.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_pre_ping': True,

@@ -6,8 +6,25 @@ import uuid
 
 def init_database(app):
     """Initialize database and migrate data from JSON files if needed"""
-    with app.app_context():
-        db.create_all()
+    try:
+        with app.app_context():
+            # Create tables
+            db.create_all()
+            print("Database tables created successfully")
+            
+            # Migrate data
+            migrate_menu_data()
+            migrate_settings_data()
+            print("Data migration completed")
+            
+    except Exception as e:
+        print(f"Database initialization error: {e}")
+        # Create basic structure if migration fails
+        try:
+            db.create_all()
+            print("Basic database structure created")
+        except Exception as inner_e:
+            print(f"Critical database error: {inner_e}")
         
         # Check if data already exists
         if MenuItem.query.first() is None:
