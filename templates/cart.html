@@ -71,8 +71,7 @@
                                             {{ "%.2f"|format(item.price * item.quantity) }} درهم
                                         </div>
                                         <form method="POST" action="{{ url_for('update_cart') }}" class="d-inline">
-                                            <input type="hidden" name="item_id" value="{{ item.id }}">
-                                            <input type="hidden" name="quantity" value="0">
+                                            <input type="hidden" name="quantity_{{ item.id }}" value="0">
                                             <button type="submit" class="btn btn-outline-danger btn-sm" 
                                                     onclick="return confirm('هل تريد حذف هذا العنصر؟')">
                                                 <i class="fas fa-trash"></i>

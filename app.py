@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
+# احذف: from flask_migrate import Migrate
 from datetime import datetime
 import json
 import os
@@ -19,7 +19,7 @@ def create_app(config_name=None):
     
     # Initialize extensions
     db.init_app(app)
-    migrate = Migrate(app, db)
+    # احذف: migrate = Migrate(app, db)
     
     # Initialize database
     init_database(app)
@@ -182,7 +182,7 @@ def add_to_cart():
 def cart():
     cart_items = session.get('cart', [])
     total = sum(item['price'] * item['quantity'] for item in cart_items)
-    return render_template('cart.html', cart_items=cart_items, total=total)
+    return render_template('cart.html', cart=cart_items, total=total)
 
 @app.route('/update_cart', methods=['POST'])
 def update_cart():
@@ -245,8 +245,22 @@ def place_order():
     # Clear cart
     session.pop('cart', None)
     
+    # إنشاء قاموس order للقالب مع الحقول المطلوبة
+    order_data = {
+        'id': order.id,
+        'tracking_code': order.tracking_code,
+        'customer_name': order.customer_name,
+        'phone': order.customer_phone,  # القالب يتوقع 'phone'
+        'address': order.customer_address,  # القالب يتوقع 'address'
+        'items': cart_items,  # استخدام cart_items مباشرة
+        'total': total,  # القالب يتوقع 'total'
+        'status': order.status,
+        'date': order.created_at.strftime('%Y-%m-%d %H:%M'),  # القالب يتوقع 'date'
+        'notes': order.notes
+    }
+    
     flash(get_text('order_success'), 'success')
-    return render_template('order_success.html', tracking_code=tracking_code)
+    return render_template('order_success.html', order=order_data, tracking_code=tracking_code)
 
 @app.route('/track_order', methods=['GET', 'POST'])
 def track_order():
@@ -255,11 +269,12 @@ def track_order():
         order = Order.query.filter_by(tracking_code=tracking_code).first()
         
         if order:
-            return render_template('track_order.html', order=order.to_dict())
+            return render_template('track_order.html', order=order.to_dict(), found=True)
         else:
             flash('رمز التتبع غير صحيح', 'error')
+            return render_template('track_order.html', found=False)
     
-    return render_template('track_order.html')
+    return render_template('track_order.html', found=False)
 
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
@@ -280,22 +295,39 @@ def admin_logout():
     session.pop('admin_logged_in', None)
     return redirect(url_for('admin_login'))
 
-# في دالة admin route، تأكد من تمرير البيانات الصحيحة
 @app.route('/admin')
 @login_required
 def admin():
     try:
-        orders = Order.query.all()
-        # تأكد من أن كل order له total
-        for order in orders:
-            if not hasattr(order, 'total'):
-                order.total = sum(item.get('price', 0) * item.get('quantity', 1) 
-                                for item in order.items if isinstance(order.items, list))
+        orders = Order.query.order_by(Order.created_at.desc()).all()
+        menu_items = MenuItem.query.all()  # إضافة قوائم الطعام
         
-        return render_template('admin.html', orders=orders)
+        # تحويل الطلبات إلى قواميس للعرض الصحيح
+        orders_data = []
+        for order in orders:
+            order_dict = order.to_dict()
+            # التأكد من أن items هو قائمة وليس string
+            if isinstance(order_dict['items'], str):
+                try:
+                    order_dict['items'] = json.loads(order_dict['items'])
+                except:
+                    order_dict['items'] = []
+            
+            # حساب المجموع إذا لم يكن موجوداً
+            if not order_dict.get('total'):
+                order_dict['total'] = sum(
+                    item.get('price', 0) * item.get('quantity', 1) 
+                    for item in order_dict['items']
+                )
+            else:
+                order_dict['total'] = order.total_amount
+            
+            orders_data.append(order_dict)
+        
+        return render_template('admin.html', orders=orders_data, menu=menu_items)
     except Exception as e:
         print(f"Admin route error: {e}")
-        return render_template('admin.html', orders=[])
+        return render_template('admin.html', orders=[], menu=[])
 
 @app.route('/update_order_status', methods=['POST'])
 @login_required
@@ -446,22 +478,50 @@ def admin_settings():
 @login_required
 def update_restaurant_info():
     restaurant_info = {
-        'name': request.form['name'],
-        'name_fr': request.form['name_fr'],
-        'phone': request.form['phone'],
-        'location': request.form['location'],
-        'location_fr': request.form['location_fr'],
-        'address': request.form['address'],
-        'address_fr': request.form['address_fr'],
-        'email': request.form['email'],
+        'name': request.form.get('name', ''),
+        'name_fr': request.form.get('name_fr', ''),
+        'phone': request.form.get('phone', ''),
+        'location': request.form.get('location', ''),
+        'location_fr': request.form.get('location_fr', ''),
+        'address': request.form.get('address', ''),
+        'address_fr': request.form.get('address_fr', ''),
+        'email': request.form.get('email', ''),
         'working_hours': {
-            'monday': {'open': request.form['monday_open'], 'close': request.form['monday_close'], 'closed': 'monday_closed' in request.form},
-            'tuesday': {'open': request.form['tuesday_open'], 'close': request.form['tuesday_close'], 'closed': 'tuesday_closed' in request.form},
-            'wednesday': {'open': request.form['wednesday_open'], 'close': request.form['wednesday_close'], 'closed': 'wednesday_closed' in request.form},
-            'thursday': {'open': request.form['thursday_open'], 'close': request.form['thursday_close'], 'closed': 'thursday_closed' in request.form},
-            'friday': {'open': request.form['friday_open'], 'close': request.form['friday_close'], 'closed': 'friday_closed' in request.form},
-            'saturday': {'open': request.form['saturday_open'], 'close': request.form['saturday_close'], 'closed': 'saturday_closed' in request.form},
-            'sunday': {'open': request.form['sunday_open'], 'close': request.form['sunday_close'], 'closed': 'sunday_closed' in request.form}
+            'monday': {
+                'open': request.form.get('monday_open', '09:00'), 
+                'close': request.form.get('monday_close', '22:00'), 
+                'closed': 'monday_closed' in request.form
+            },
+            'tuesday': {
+                'open': request.form.get('tuesday_open', '09:00'), 
+                'close': request.form.get('tuesday_close', '22:00'), 
+                'closed': 'tuesday_closed' in request.form
+            },
+            'wednesday': {
+                'open': request.form.get('wednesday_open', '09:00'), 
+                'close': request.form.get('wednesday_close', '22:00'), 
+                'closed': 'wednesday_closed' in request.form
+            },
+            'thursday': {
+                'open': request.form.get('thursday_open', '09:00'), 
+                'close': request.form.get('thursday_close', '22:00'), 
+                'closed': 'thursday_closed' in request.form
+            },
+            'friday': {
+                'open': request.form.get('friday_open', '09:00'), 
+                'close': request.form.get('friday_close', '22:00'), 
+                'closed': 'friday_closed' in request.form
+            },
+            'saturday': {
+                'open': request.form.get('saturday_open', '09:00'), 
+                'close': request.form.get('saturday_close', '22:00'), 
+                'closed': 'saturday_closed' in request.form
+            },
+            'sunday': {
+                'open': request.form.get('sunday_open', '09:00'), 
+                'close': request.form.get('sunday_close', '22:00'), 
+                'closed': 'sunday_closed' in request.form
+            }
         },
         'social_media': {
             'facebook': request.form.get('facebook', ''),
@@ -515,6 +575,31 @@ def update_admin_credentials():
     session['admin_username'] = new_username
     
     flash('تم تحديث بيانات المدير بنجاح', 'success')
+    return redirect(url_for('admin_settings'))
+
+@app.route('/update_app_settings', methods=['POST'])
+@login_required
+def update_app_settings():
+    """Update application settings like currency, tax rate, etc."""
+    try:
+        app_settings = {
+            'currency': request.form.get('currency', 'د.م'),
+            'currency_fr': request.form.get('currency_fr', 'MAD'),
+            'tax_rate': float(request.form.get('tax_rate', 0)),
+            'delivery_fee': float(request.form.get('delivery_fee', 0)),
+            'min_order_amount': float(request.form.get('min_order_amount', 0))
+        }
+        
+        # Update the settings in database
+        update_setting('app_settings', app_settings)
+        
+        flash('تم تحديث إعدادات التطبيق بنجاح', 'success')
+        
+    except ValueError as e:
+        flash('خطأ في البيانات المدخلة. تأكد من صحة الأرقام.', 'error')
+    except Exception as e:
+        flash(f'حدث خطأ أثناء تحديث الإعدادات: {str(e)}', 'error')
+    
     return redirect(url_for('admin_settings'))
 
 if __name__ == '__main__':

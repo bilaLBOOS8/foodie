@@ -49,29 +49,35 @@ function initializeForms() {
     // التحقق من صحة النماذج
     const forms = document.querySelectorAll('form');
     forms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            if (!validateForm(this)) {
-                e.preventDefault();
-                showNotification('يرجى ملء جميع الحقول المطلوبة', 'warning');
-            }
-        });
+        if (form) {
+            form.addEventListener('submit', function(event) {
+                if (!validateForm(this)) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                this.classList.add('was-validated');
+            });
+        }
     });
     
     // تنسيق أرقام الهاتف
-    const phoneInputs = document.querySelectorAll('input[type="tel"], input[name*="phone"]');
+    const phoneInputs = document.querySelectorAll('input[type="tel"]');
     phoneInputs.forEach(input => {
-        input.addEventListener('input', function() {
-            formatPhoneNumber(this);
-        });
+        if (input) {
+            input.addEventListener('input', function() {
+                formatPhoneNumber(this);
+            });
+        }
     });
     
-    // تحسين textarea
+    // تغيير حجم النص التلقائي
     const textareas = document.querySelectorAll('textarea');
     textareas.forEach(textarea => {
-        autoResize(textarea);
-        textarea.addEventListener('input', function() {
-            autoResize(this);
-        });
+        if (textarea) {
+            textarea.addEventListener('input', function() {
+                autoResize(this);
+            });
+        }
     });
 }
 
@@ -167,7 +173,7 @@ function autoResize(textarea) {
     textarea.style.height = textarea.scrollHeight + 'px';
 }
 
-// تحديث الكمية
+// تحدية الكمية
 function updateQuantity(itemId, action) {
     const quantityElement = document.querySelector(`#quantity-${itemId}`);
     let quantity = parseInt(quantityElement.textContent);

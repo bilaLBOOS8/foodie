@@ -12,29 +12,27 @@ def init_database(app):
             db.create_all()
             print("Database tables created successfully")
             
-            # Migrate data
-            migrate_menu_data()
-            migrate_settings_data()
+            # Check if data already exists before migrating
+            if MenuItem.query.first() is None:
+                migrate_menu_data()
+            
+            if Settings.query.first() is None:
+                migrate_settings_data()
+            
+            # Migrate orders if any exist in JSON
+            migrate_orders_data()
+            
             print("Data migration completed")
             
     except Exception as e:
         print(f"Database initialization error: {e}")
         # Create basic structure if migration fails
         try:
-            db.create_all()
-            print("Basic database structure created")
+            with app.app_context():
+                db.create_all()
+                print("Basic database structure created")
         except Exception as inner_e:
             print(f"Critical database error: {inner_e}")
-        
-        # Check if data already exists
-        if MenuItem.query.first() is None:
-            migrate_menu_data()
-        
-        if Settings.query.first() is None:
-            migrate_settings_data()
-        
-        # Migrate orders if any exist in JSON
-        migrate_orders_data()
 
 def migrate_menu_data():
     """Migrate menu data from JSON to database"""
@@ -44,6 +42,16 @@ def migrate_menu_data():
             menu_data = json.load(f)
         
         for item_data in menu_data:
+            # تصحيح التعامل مع التاريخ
+            created_at_str = item_data.get('created_at')
+            if created_at_str:
+                try:
+                    created_at = datetime.fromisoformat(created_at_str)
+                except ValueError:
+                    created_at = datetime.utcnow()
+            else:
+                created_at = datetime.utcnow()
+            
             menu_item = MenuItem(
                 id=item_data.get('id'),
                 name=item_data.get('name'),
@@ -58,7 +66,7 @@ def migrate_menu_data():
                 preparation_time=item_data.get('preparation_time', 15),
                 ingredients=json.dumps(item_data.get('ingredients', []), ensure_ascii=False),
                 ingredients_fr=json.dumps(item_data.get('ingredients_fr', []), ensure_ascii=False),
-                created_at=datetime.fromisoformat(item_data.get('created_at', datetime.utcnow().isoformat()))
+                created_at=created_at
             )
             db.session.add(menu_item)
         

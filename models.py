@@ -55,15 +55,31 @@ class Order(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
+    @property
+    def total(self):
+        """Calculate total price for the order"""
+        if self.total_amount:
+            return self.total_amount
+        # إذا لم يكن هناك total_amount، احسبه من العناصر
+        items_list = json.loads(self.items) if self.items else []
+        return sum(item.get('price', 0) * item.get('quantity', 1) for item in items_list)
+    
+    @property
+    def order_number(self):
+        """Generate order number from ID"""
+        return f"ORD-{self.id:06d}"
+    
     def to_dict(self):
         return {
             'id': self.id,
+            'order_number': self.order_number,
             'tracking_code': self.tracking_code,
             'customer_name': self.customer_name,
             'customer_phone': self.customer_phone,
             'customer_address': self.customer_address,
             'items': json.loads(self.items) if self.items else [],
             'total_amount': self.total_amount,
+            'total': self.total,
             'status': self.status,
             'notes': self.notes,
             'created_at': self.created_at.isoformat() if self.created_at else None,
